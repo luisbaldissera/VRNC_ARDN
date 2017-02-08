@@ -44,18 +44,18 @@ public:
   // Visibility of the cursor
   bool cursorVisible;
   // Title of the tab
-  String title;
-  // The adress of the String Array with the content of the tab
-  String* texts;
+  char* title;
+  // The adress of the char* Array with the content of the tab
+  char** texts;
   // The number os elements those is content of the tab
   int numberOfElements;
   // A Array of adresses of other tabs related to the content of this tab
   Tab** pointeds;
   // Store the results to be displayed
-  String* results;
+  char** results;
 
   // Main constructor
-  Tab(String* _texts, String _title, bool _selectVis, ori _justification) {
+  Tab(char** _texts, char* _title, bool _selectVis, ori _justification) {
     justification = _justification;
     cursorVisible = _selectVis;
     title = _title;
@@ -65,32 +65,32 @@ public:
       numberOfElements++;
     }
     pointeds = new Tab*[numberOfElements];
-    results = new String[numberOfElements];
+    results = new char*[numberOfElements];
     for(int i = 0; i < numberOfElements; i++) {
       results[i] = "";
     }
   }
 
   // Overloaded constructors
-  Tab(String* _texts, String _title, bool _selectVis) {
+  Tab(char** _texts, char* _title, bool _selectVis) {
     Tab(_texts, _title, _selectVis, left);
   }
-  Tab(String* _texts, String _title, ori _justification) {
+  Tab(char** _texts, char* _title, ori _justification) {
     Tab(_texts, _title, false, _justification);
   }
-  Tab(String* _texts, bool _selectVis, ori _justification) {
+  Tab(char** _texts, bool _selectVis, ori _justification) {
     Tab(_texts, _texts[0], _selectVis, _justification);
   }
-  Tab(String* _texts, String _title) {
+  Tab(char** _texts, char* _title) {
     Tab(_texts, _title, false, left);
   }
-  Tab(String* _texts, bool _selectVis) {
+  Tab(char** _texts, bool _selectVis) {
     Tab(_texts, _texts[0], _selectVis, left);
   }
-  Tab(String* _texts, ori _justification) {
+  Tab(char** _texts, ori _justification) {
     Tab(_texts, _texts[0], false, _justification);
   }
-  Tab(String* _texts) {
+  Tab(char** _texts) {
     Tab(_texts, _texts[0], false, left);
   }
 
@@ -116,16 +116,16 @@ public:
   }
 };
 
-String MainText[] = {"Distance", "Temperature", "Light", "Microphone", "IR Receiver", "Aceleration", "Velocity", "Gyroscope", "Color", ""};
-String DistanceText[] = {"$ cm", "$ in", "$ us", ""};
-String TemperatureText[] = {"$ C", "$ F", "$ K", "value: $", ""};
-String LightText[] = {"$ lux", "$ lm", "value: $", ""};
-String MicrophoneText[] = {"$ dB", "$ Hz", "Tone: $", "value: $", ""};
-String InfraRedText[] = {"HEX $", ""};
-String AcelerometerText[] = {"x: $", "y: $", "z: $", "Acel: $", ""};
-String VelocityText[] = {"x: $", "y: $", "z: $", "Vel: $", ""};
-String GyroText[] = {"x: $", "y: $", "z: $", ""};
-String ColorText[] = {"R: $", "G: $", "B: $", "HEX: $", ""};
+char* MainText[] = {"Distance", "Temperature", "Light", "Microphone", "IR Receiver", "Aceleration", "Velocity", "Gyroscope", "Color", ""};
+char* DistanceText[] = {"$ cm", "$ in", "$ us", ""};
+char* TemperatureText[] = {"$ C", "$ F", "$ K", "value: $", ""};
+char* LightText[] = {"$ lux", "$ lm", "value: $", ""};
+char* MicrophoneText[] = {"$ dB", "$ Hz", "Tone: $", "value: $", ""};
+char* InfraRedText[] = {"HEX $", ""};
+char* AcelerometerText[] = {"x: $", "y: $", "z: $", "Acel: $", ""};
+char* VelocityText[] = {"x: $", "y: $", "z: $", "Vel: $", ""};
+char* GyroText[] = {"x: $", "y: $", "z: $", ""};
+char* ColorText[] = {"R: $", "G: $", "B: $", "HEX: $", ""};
 
 // Define all the tabs
 Tab MainTab(MainText, "MainTab", true, left);
@@ -147,8 +147,6 @@ Tab* currentTab = &MainTab;
 
 void display();
 void relateTabs() {
-  Serial.begin(9600);
-  while(!Serial);
   // Correlate the tabs
   // Main Tab
   MainTab.pointTo(0, &DistanceTab);
@@ -212,7 +210,7 @@ void loop() {
 }
 
 void display() {
-  String lineText = "";
+  char* lineText = "";
   for(int i = 0; i < LCDROW; i++) {
     // When the cursor is pointed in the last element of the tab
     if(currentTab->cursorPosition == currentTab->numberOfElements - 1) {
@@ -222,8 +220,7 @@ void display() {
       }
     }
     lineText = currentTab->texts[currentTab->cursorPosition - relativeCursor + i];
-    // BUG: When using String.replace() in lineText as on the next code line, lineText becomes = "". Why?
-    // lineText.replace("$", "0");
+    lineText = replaceString(lineText, "$", "0"); // TODO: create the string replacement system
     lcd.setCursor(0, i);  //COl, ROW
     // If the cursor is visible
     if(currentTab->cursorVisible) {
@@ -235,13 +232,15 @@ void display() {
     }
     // Justify the tab to right
     if(currentTab->justification == right) {
-      lcd.setCursor(LCDCOL - lineText.length(), i);
+      lcd.setCursor(LCDCOL - strlen(lineText), i);
     }
     lcd.print(lineText);
-    // if(lineText == "") {
-    //   Serial.println("ERROR");
-    // }
   }
+}
+
+char* replaceString(char* _buf, char* _old, const char* _new) {
+  // TODO: create the system os replacement of strings here to use on display function
+
 }
 
 void moveRelativeCursor(int _factor) {
