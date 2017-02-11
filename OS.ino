@@ -67,7 +67,7 @@ public:
     pointeds = new Menu*[numberOfElements];
     results = new char*[numberOfElements];
     for(int i = 0; i < numberOfElements; i++) {
-      results[i] = "";
+      results[i] = "-";
     }
   }
 
@@ -99,7 +99,8 @@ public:
       pointeds[_index] = _pointed;
     }
   }
-  void poinTo(Menu* _pointed) {
+
+  void pointTo(Menu* _pointed) {
     for(int i = 0; i < numberOfElements; i++) {
       pointeds[i] = _pointed;
     }
@@ -167,7 +168,9 @@ void relateMenus() {
   GyroscopeMenu.pointTo(&MainMenu);
   ColorMenu.pointTo(&MainMenu);
 }
-
+void relateFunctions() {
+  // TODO: relate each Menu with their respectives functions
+}
 
 void setup() {
   // Define all inputs
@@ -183,6 +186,7 @@ void setup() {
   lcd.createChar(POINT_ACTIVE, pointActive);
 
   relateMenus();
+  relateFunctions();
 }
 
 void loop() {
@@ -208,7 +212,9 @@ void loop() {
 }
 
 void display() {
+  // string that saves the current text to be displayed
   char* lineText;
+  // TODO: connect the functions with their relative value to show here
   for(int i = 0; i < LCDROW; i++) {
     // When the cursor is pointed in the last element of the Menu
     if(currentMenu->cursorPosition == currentMenu->numberOfElements - 1) {
@@ -217,8 +223,11 @@ void display() {
         relativeCursor = currentMenu->numberOfElements - 1;
       }
     }
+    // get the text based in the current menu and the cursor position on the display
     lineText = currentMenu->texts[currentMenu->cursorPosition - relativeCursor + i];
-    lineText = strrep(lineText, "$", "0"); // TODO: create the string replacement system
+    // replace "$" for the value it must display
+    strrep(&lineText, "$", currentMenu->results[currentMenu->cursorPosition - relativeCursor + i]);
+    // set the cursor to the beginning of the display
     lcd.setCursor(0, i);  //COl, ROW
     // If the cursor is visible
     if(currentMenu->cursorVisible) {
@@ -232,34 +241,38 @@ void display() {
     if(currentMenu->justification == right) {
       lcd.setCursor(LCDCOL - strlen(lineText), i);
     }
+    // Justify the Menu to center
     if(currentMenu->justification == center) {
       lcd.setCursor((LCDCOL - strlen(lineText)) / 2, i);
     }
     lcd.print(lineText);
+    // delete useless memory
+    if (lineText != currentMenu->texts[currentMenu->cursorPosition - relativeCursor + i]) {
+      delete lineText;
+    }
   }
 }
 
-char* strrep(char* oldstr, char* search , char* replace)
-{
-    char* before = "";
-    char* after = "";
-    char* found = "";
-    char* newstr = "";
+void strrep(char** source, char* search , char* replace) {
+  char* newstr;
+  char* found = NULL;
+  char* after = NULL;
+  int foundPosition = 0;
+  found = strstr(*source, search);
+  if(found != NULL) {
+    foundPosition = found - *source;
+    // search for more replacement accurences in after string
+    after = found + strlen(search);
+    strrep(&after, search, replace);
+    // newstr = (char*) realloc(*source, sizeof(char) * (1 + foundPosition + strlen(replace) + strlen(after)));
+    newstr = new char[1 + foundPosition + strlen(replace) + strlen(after)];
 
-    found = strstr(oldstr, search);
-    if(found != NULL) {
-      // TODO: cut the part before and after the found
+    strncpy(newstr, *source, foundPosition);
+    strncpy(newstr + foundPosition, replace, strlen(replace));
+    strcpy(newstr + foundPosition + strlen(replace), after);
 
-      after = strrep(after, search, replace);
-
-      newstr = new char[(strlen(replace) - strlen(search) + strlen(before) + strlen(after))];
-      strcat(before, replace);
-      strcat(newstr, after);
-    } else {
-      newstr = oldstr;
-    }
-
-    return newstr;
+    *source = newstr;
+  }
 }
 
 void moveRelativeCursor(int _factor) {
@@ -270,5 +283,21 @@ void moveRelativeCursor(int _factor) {
   if(relativeCursor < 0) {
     relativeCursor = 0;
   }
+}
+
+// TODO: READING FUNCTINOS
+void distanceRead() {
+
+}
+void temperatureRead() {
+
+}
+void lightRead() {
+
+}
+void microphoneRead() {
+
+}
+void irRead() {
 
 }
