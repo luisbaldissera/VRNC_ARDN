@@ -33,29 +33,29 @@ byte pointActive[8] = { B00000, B10000, B11000, B11100, B11000, B10000, B00000,}
 
 enum ori { left, right, center};
 
-class Tab {
+class Menu {
 private:
-  #define ALL -1
+
 public:
-  // Stores the orientation of the elements in the tab
+  // Stores the orientation of the elements in the Menu
   ori justification;
-  // Stores the cursor position in the tab
+  // Stores the cursor position in the Menu
   int cursorPosition = 0;
   // Visibility of the cursor
   bool cursorVisible;
-  // Title of the tab
-  String title;
-  // The adress of the String Array with the content of the tab
-  String* texts;
-  // The number os elements those is content of the tab
+  // Title of the Menu
+  char* title;
+  // The adress of the char* Array with the content of the Menu
+  char** texts;
+  // The number os elements those is content of the Menu
   int numberOfElements;
-  // A Array of adresses of other tabs related to the content of this tab
-  Tab** pointeds;
+  // A Array of adresses of other Menus related to the content of this Menu
+  Menu** pointeds;
   // Store the results to be displayed
-  String* results;
+  char** results;
 
   // Main constructor
-  Tab(String* _texts, String _title, bool _selectVis, ori _justification) {
+  Menu(char** _texts, char* _title, bool _selectVis, ori _justification) {
     justification = _justification;
     cursorVisible = _selectVis;
     title = _title;
@@ -64,44 +64,45 @@ public:
     while(texts[numberOfElements] != "") {
       numberOfElements++;
     }
-    pointeds = new Tab*[numberOfElements];
-    results = new String[numberOfElements];
+    pointeds = new Menu*[numberOfElements];
+    results = new char*[numberOfElements];
     for(int i = 0; i < numberOfElements; i++) {
-      results[i] = "";
+      results[i] = "-";
     }
   }
 
   // Overloaded constructors
-  Tab(String* _texts, String _title, bool _selectVis) {
-    Tab(_texts, _title, _selectVis, left);
+  Menu(char** _texts, char* _title, bool _selectVis) {
+    Menu(_texts, _title, _selectVis, left);
   }
-  Tab(String* _texts, String _title, ori _justification) {
-    Tab(_texts, _title, false, _justification);
+  Menu(char** _texts, char* _title, ori _justification) {
+    Menu(_texts, _title, false, _justification);
   }
-  Tab(String* _texts, bool _selectVis, ori _justification) {
-    Tab(_texts, _texts[0], _selectVis, _justification);
+  Menu(char** _texts, bool _selectVis, ori _justification) {
+    Menu(_texts, _texts[0], _selectVis, _justification);
   }
-  Tab(String* _texts, String _title) {
-    Tab(_texts, _title, false, left);
+  Menu(char** _texts, char* _title) {
+    Menu(_texts, _title, false, left);
   }
-  Tab(String* _texts, bool _selectVis) {
-    Tab(_texts, _texts[0], _selectVis, left);
+  Menu(char** _texts, bool _selectVis) {
+    Menu(_texts, _texts[0], _selectVis, left);
   }
-  Tab(String* _texts, ori _justification) {
-    Tab(_texts, _texts[0], false, _justification);
+  Menu(char** _texts, ori _justification) {
+    Menu(_texts, _texts[0], false, _justification);
   }
-  Tab(String* _texts) {
-    Tab(_texts, _texts[0], false, left);
+  Menu(char** _texts) {
+    Menu(_texts, _texts[0], false, left);
   }
 
-  void pointTo(int _index, Tab* _pointed) {
-    if(_index < numberOfElements && _index > ALL) {
+  void pointTo(int _index, Menu* _pointed) {
+    if(_index < numberOfElements && _index >= 0) {
       pointeds[_index] = _pointed;
     }
-    if(_index == ALL) {
-      for(int i = 0; i < numberOfElements; i++) {
-        pointeds[i] = _pointed;
-      }
+  }
+
+  void pointTo(Menu* _pointed) {
+    for(int i = 0; i < numberOfElements; i++) {
+      pointeds[i] = _pointed;
     }
   }
 
@@ -116,62 +117,60 @@ public:
   }
 };
 
-String MainText[] = {"Distance", "Temperature", "Light", "Microphone", "IR Receiver", "Aceleration", "Velocity", "Gyroscope", "Color", ""};
-String DistanceText[] = {"$ cm", "$ in", "$ us", ""};
-String TemperatureText[] = {"$ C", "$ F", "$ K", "value: $", ""};
-String LightText[] = {"$ lux", "$ lm", "value: $", ""};
-String MicrophoneText[] = {"$ dB", "$ Hz", "Tone: $", "value: $", ""};
-String InfraRedText[] = {"HEX $", ""};
-String AcelerometerText[] = {"x: $", "y: $", "z: $", "Acel: $", ""};
-String VelocityText[] = {"x: $", "y: $", "z: $", "Vel: $", ""};
-String GyroText[] = {"x: $", "y: $", "z: $", ""};
-String ColorText[] = {"R: $", "G: $", "B: $", "HEX: $", ""};
+char* MainText[] = {"Distance", "Temperature", "Light", "Microphone", "IR Receiver", "Aceleration", "Velocity", "Gyroscope", "Color", ""};
+char* DistanceText[] = {"$ cm", "$ in", "$ us", ""};
+char* TemperatureText[] = {"$ C", "$ F", "$ K", "value: $", ""};
+char* LightText[] = {"$ lux", "$ lm", "value: $", ""};
+char* MicrophoneText[] = {"$ dB", "$ Hz", "Tone: $", "value: $", ""};
+char* InfraRedText[] = {"HEX $", ""};
+char* AcelerometerText[] = {"x: $", "y: $", "z: $", "Acel: $", ""};
+char* VelocityText[] = {"x: $", "y: $", "z: $", "Vel: $", ""};
+char* GyroText[] = {"x: $", "y: $", "z: $", ""};
+char* ColorText[] = {"R: $", "G: $", "B: $", "HEX: $", ""};
 
-// Define all the tabs
-Tab MainTab(MainText, "MainTab", true, left);
-Tab DistanceTab(DistanceText, "DistanceTab", true, right);
-Tab TemperatureTab(TemperatureText, "TemperatureTab", true, right);
-Tab LightTab(LightText, "LightTab", true, right);
-Tab MicrophoneTab(MicrophoneText, "MicrophoneTab", true, right);
-Tab InfraRedTab(InfraRedText, "InfraRedTab", true, right);
-Tab AcelerometerTab(AcelerometerText, "AcelerometerTab", true, right);
-Tab VelocityTab(VelocityText, "VelocityTab", true, right);
-Tab GyroscopeTab(GyroText, "GyroscopeTab", true, right);
-Tab ColorTab(ColorText, "ColorTab", true, right);
+// Define all the Menus
+Menu MainMenu(MainText, "MainMenu", true, left);
+Menu DistanceMenu(DistanceText, "DistanceMenu", true, right);
+Menu TemperatureMenu(TemperatureText, "TemperatureMenu", true, right);
+Menu LightMenu(LightText, "LightMenu", true, right);
+Menu MicrophoneMenu(MicrophoneText, "MicrophoneMenu", true, right);
+Menu InfraRedMenu(InfraRedText, "InfraRedMenu", true, right);
+Menu AcelerometerMenu(AcelerometerText, "AcelerometerMenu", true, right);
+Menu VelocityMenu(VelocityText, "VelocityMenu", true, right);
+Menu GyroscopeMenu(GyroText, "GyroscopeMenu", true, right);
+Menu ColorMenu(ColorText, "ColorMenu", true, right);
 
-// ... pointTo(index, Tab)
-
-Tab allTabs[] = {MainTab, DistanceTab, TemperatureTab, LightTab, MicrophoneTab, InfraRedTab, AcelerometerTab, VelocityTab, GyroscopeTab, ColorTab};
-// Point to the current tab to be displayed
-Tab* currentTab = &MainTab;
+Menu allMenus[] = {MainMenu, DistanceMenu, TemperatureMenu, LightMenu, MicrophoneMenu, InfraRedMenu, AcelerometerMenu, VelocityMenu, GyroscopeMenu, ColorMenu};
+// Point to the current Menu to be displayed
+Menu* currentMenu = &MainMenu;
 
 void display();
-void relateTabs() {
-  Serial.begin(9600);
-  while(!Serial);
-  // Correlate the tabs
-  // Main Tab
-  MainTab.pointTo(0, &DistanceTab);
-  MainTab.pointTo(1, &TemperatureTab);
-  MainTab.pointTo(2, &LightTab);
-  MainTab.pointTo(3, &MicrophoneTab);
-  MainTab.pointTo(4, &InfraRedTab);
-  MainTab.pointTo(5, &AcelerometerTab);
-  MainTab.pointTo(6, &VelocityTab);
-  MainTab.pointTo(7, &GyroscopeTab);
-  MainTab.pointTo(8, &ColorTab);
+void relateMenus() {
+  // Correlate the Menus
+  // Main Menu
+  MainMenu.pointTo(0, &DistanceMenu);
+  MainMenu.pointTo(1, &TemperatureMenu);
+  MainMenu.pointTo(2, &LightMenu);
+  MainMenu.pointTo(3, &MicrophoneMenu);
+  MainMenu.pointTo(4, &InfraRedMenu);
+  MainMenu.pointTo(5, &AcelerometerMenu);
+  MainMenu.pointTo(6, &VelocityMenu);
+  MainMenu.pointTo(7, &GyroscopeMenu);
+  MainMenu.pointTo(8, &ColorMenu);
   // Others
-  DistanceTab.pointTo(ALL, &MainTab);
-  TemperatureTab.pointTo(ALL, &MainTab);
-  LightTab.pointTo(ALL, &MainTab);
-  MicrophoneTab.pointTo(ALL, &MainTab);
-  InfraRedTab.pointTo(ALL, &MainTab);
-  AcelerometerTab.pointTo(ALL, &MainTab);
-  VelocityTab.pointTo(ALL, &MainTab);
-  GyroscopeTab.pointTo(ALL, &MainTab);
-  ColorTab.pointTo(ALL, &MainTab);
+  DistanceMenu.pointTo(&MainMenu);
+  TemperatureMenu.pointTo(&MainMenu);
+  LightMenu.pointTo(&MainMenu);
+  MicrophoneMenu.pointTo(&MainMenu);
+  InfraRedMenu.pointTo(&MainMenu);
+  AcelerometerMenu.pointTo(&MainMenu);
+  VelocityMenu.pointTo(&MainMenu);
+  GyroscopeMenu.pointTo(&MainMenu);
+  ColorMenu.pointTo(&MainMenu);
 }
-
+void relateFunctions() {
+  // TODO: relate each Menu with their respectives functions
+}
 
 void setup() {
   // Define all inputs
@@ -186,25 +185,26 @@ void setup() {
   lcd.begin(LCDCOL, LCDROW);
   lcd.createChar(POINT_ACTIVE, pointActive);
 
-  relateTabs();
+  relateMenus();
+  relateFunctions();
 }
 
 void loop() {
   if(digitalRead(RIGHT) == 0) {
     while(digitalRead(RIGHT) == 0);
-    currentTab->moveCursor(1);
+    currentMenu->moveCursor(1);
     moveRelativeCursor(1);
     lcd.clear();
   }
   if(digitalRead(LEFT) == 0) {
     while(digitalRead(LEFT) == 0);
-    currentTab->moveCursor(-1);
+    currentMenu->moveCursor(-1);
     moveRelativeCursor(-1);
     lcd.clear();
   }
   if(digitalRead(ENTER) == 0) {
     while(digitalRead(ENTER) == 0);
-    currentTab = currentTab->pointeds[currentTab->cursorPosition];
+    currentMenu = currentMenu->pointeds[currentMenu->cursorPosition];
     relativeCursor = 0;
     lcd.clear();
   }
@@ -212,35 +212,66 @@ void loop() {
 }
 
 void display() {
-  String lineText = "";
+  // string that saves the current text to be displayed
+  char* lineText;
+  // TODO: connect the functions with their relative value to show here
   for(int i = 0; i < LCDROW; i++) {
-    // When the cursor is pointed in the last element of the tab
-    if(currentTab->cursorPosition == currentTab->numberOfElements - 1) {
+    // When the cursor is pointed in the last element of the Menu
+    if(currentMenu->cursorPosition == currentMenu->numberOfElements - 1) {
       relativeCursor = LCDROW - 1;
-      if(currentTab->numberOfElements < LCDROW) {
-        relativeCursor = currentTab->numberOfElements - 1;
+      if(currentMenu->numberOfElements < LCDROW) {
+        relativeCursor = currentMenu->numberOfElements - 1;
       }
     }
-    lineText = currentTab->texts[currentTab->cursorPosition - relativeCursor + i];
-    // BUG: When using String.replace() in lineText as on the next code line, lineText becomes = "". Why?
-    // lineText.replace("$", "0");
+    // get the text based in the current menu and the cursor position on the display
+    lineText = currentMenu->texts[currentMenu->cursorPosition - relativeCursor + i];
+    // replace "$" for the value it must display
+    strrep(&lineText, "$", currentMenu->results[currentMenu->cursorPosition - relativeCursor + i]);
+    // set the cursor to the beginning of the display
     lcd.setCursor(0, i);  //COl, ROW
     // If the cursor is visible
-    if(currentTab->cursorVisible) {
+    if(currentMenu->cursorVisible) {
       if(relativeCursor == i) {
         lcd.write(byte(POINT_ACTIVE));
       } else {
         lcd.print(" ");
       }
     }
-    // Justify the tab to right
-    if(currentTab->justification == right) {
-      lcd.setCursor(LCDCOL - lineText.length(), i);
+    // Justify the Menu to right
+    if(currentMenu->justification == right) {
+      lcd.setCursor(LCDCOL - strlen(lineText), i);
+    }
+    // Justify the Menu to center
+    if(currentMenu->justification == center) {
+      lcd.setCursor((LCDCOL - strlen(lineText)) / 2, i);
     }
     lcd.print(lineText);
-    // if(lineText == "") {
-    //   Serial.println("ERROR");
-    // }
+    // delete useless memory
+    if (lineText != currentMenu->texts[currentMenu->cursorPosition - relativeCursor + i]) {
+      delete lineText;
+    }
+  }
+}
+
+void strrep(char** source, char* search , char* replace) {
+  char* newstr;
+  char* found = NULL;
+  char* after = NULL;
+  int foundPosition = 0;
+  found = strstr(*source, search);
+  if(found != NULL) {
+    foundPosition = found - *source;
+    // search for more replacement accurences in after string
+    after = found + strlen(search);
+    strrep(&after, search, replace);
+    // newstr = (char*) realloc(*source, sizeof(char) * (1 + foundPosition + strlen(replace) + strlen(after)));
+    newstr = new char[1 + foundPosition + strlen(replace) + strlen(after)];
+
+    strncpy(newstr, *source, foundPosition);
+    strncpy(newstr + foundPosition, replace, strlen(replace));
+    strcpy(newstr + foundPosition + strlen(replace), after);
+
+    *source = newstr;
   }
 }
 
@@ -252,5 +283,21 @@ void moveRelativeCursor(int _factor) {
   if(relativeCursor < 0) {
     relativeCursor = 0;
   }
+}
+
+// TODO: READING FUNCTINOS
+void distanceRead() {
+
+}
+void temperatureRead() {
+
+}
+void lightRead() {
+
+}
+void microphoneRead() {
+
+}
+void irRead() {
 
 }
